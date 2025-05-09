@@ -1,0 +1,53 @@
+version: '3.3'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ubatuba-event-tracker-backend/Dockerfile
+    privileged: true
+    environment:
+      - DB_NAME=${DB_NAME}
+      - SECRET_TOKEN_GENERATE_KEY=${SECRET_TOKEN_GENERATE_KEY}
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    working_dir: /app
+    volumes:
+      - ./ubatuba-event-tracker-backend:/app
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  frontend:
+    build:
+      context: ./ubatuba-event-tracker-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"  # Default Vite port
+    volumes:
+      - ./ubatuba-event-tracker-frontend:/app
+      - /app/node_modules  # <--- Anonymous volume here
+    working_dir: /app
+    command: ["npm", "run", "dev"]
+    environment:
+      - VITE_BASE_URL=${VITE_BASE_URL}
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLI=true
+
+
+volumes:
+  postgres_data:
