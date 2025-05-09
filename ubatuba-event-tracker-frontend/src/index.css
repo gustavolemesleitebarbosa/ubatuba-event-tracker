@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Remove the existing theme variables and custom variants */
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(to right, #251ee9, #3b70c4);
+}
